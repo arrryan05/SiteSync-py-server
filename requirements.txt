@@ -3,8 +3,15 @@ uvicorn[standard]
 sqlmodel          # ORM + Pydantic
 psycopg2-binary  # Postgres driver
 alembic           # migrations
-python-dotenv     # load .env
+python-dotenv     
 pydantic[email]
 passlib[bcrypt]
 PyJWT
-
+python-jose[cryptography]
+asyncpg
+httpx>=0.25
+xmltodict>=0.13
+playwright>=1.39
+google-generativeai>=0.8.4
+redis>=4.5.1
+rq>=1.14

@@ -1,31 +1,30 @@
-# src/controllers/auth.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
+from schemas.auth import SignupRequest, LoginRequest, SignupResponse, LoginResponse
+from services.auth import signup_service, login_service
 from db.database import get_session
-from schemas.auth import SignupRequest, SignupResponse, LoginRequest, LoginResponse
-from services.auth import signup, login
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/signup", response_model=SignupResponse)
-def signup_controller(
-    data: SignupRequest,
-    session: Session = Depends(get_session),
+async def signup(
+    payload: SignupRequest,
+    session: AsyncSession = Depends(get_session),
 ):
     try:
-        return signup(data, session)
+        return await signup_service(payload, session)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/login", response_model=LoginResponse)
-def login_controller(
-    data: LoginRequest,
-    session: Session = Depends(get_session),
+async def login(
+    payload: LoginRequest,
+    session: AsyncSession = Depends(get_session),
 ):
     try:
-        return login(data, session)
+        return await login_service(payload, session)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e))

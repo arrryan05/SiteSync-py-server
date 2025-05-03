@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python environment variables and secrets
+.env
+.env.*
+*.env
+
+# MyPy / Pytest / Coverage
+.mypy_cache/
+.pytest_cache/
+coverage.*
+htmlcov/
+.tox/
+
+# Logs
+*.log
+
+# VSCode / PyCharm settings
+.vscode/
+.idea/
+
+# Docker
+*.pid
+*.db
+*.sqlite3
+Dockerfile.*
+docker-compose.*
+__docker_volumes__/
+
+# DB migrations (optional)
+alembic.ini
+migrations/
+
+# Node modules (if frontend present)
+node_modules/
+
+# Compiled files / cache
+*.pyo
+*.pyd
+*.pdb
+
+# OS metadata
+.DS_Store
+Thumbs.db

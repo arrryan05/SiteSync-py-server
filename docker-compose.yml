@@ -8,13 +8,24 @@ services:
     ports:
       - "8080:8080"  
     depends_on:
-      - db          
+      - db
+      - redis          
     volumes:
       - ./:/app                # optional: live‑reload in dev
     env_file:
       - .env                   # load DATABASE_URL, JWT_SECRET, etc.
 
   # (Add other services here as you go—Postgres, Redis, Chroma, worker…)
+
+  worker:
+    build: .
+    container_name: fastapi_worker
+    command: rq worker analysis
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
 
   # Example: Postgres
   db:
@@ -26,6 +37,12 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
 
 volumes:
   db-data:
