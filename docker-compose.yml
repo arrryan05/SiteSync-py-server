@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+
+  web:
+    build: .                   # ← looks for Dockerfile here
+    container_name: fastapi_web
+    ports:
+      - "8080:8080"  
+    depends_on:
+      - db          
+    volumes:
+      - ./:/app                # optional: live‑reload in dev
+    env_file:
+      - .env                   # load DATABASE_URL, JWT_SECRET, etc.
+
+  # (Add other services here as you go—Postgres, Redis, Chroma, worker…)
+
+  # Example: Postgres
+  db:
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  db-data:

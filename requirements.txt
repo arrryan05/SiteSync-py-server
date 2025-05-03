@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sqlmodel          # ORM + Pydantic
+psycopg2-binary  # Postgres driver
+alembic           # migrations
+python-dotenv     # load .env
+pydantic[email]
+passlib[bcrypt]
+PyJWT
+
