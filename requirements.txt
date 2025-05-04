@@ -12,6 +12,6 @@ asyncpg
 httpx>=0.25
 xmltodict>=0.13
 playwright>=1.39
-google-generativeai>=0.8.4
+google-genai
 redis>=4.5.1
 rq>=1.14

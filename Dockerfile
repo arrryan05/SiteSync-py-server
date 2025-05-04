@@ -35,7 +35,7 @@
 # └────────────────────────────────────────────────────────────┘
 
 # 1) Base on the Playwright Python image (Ubuntu 24.04 “Noble” + Python + browsers)
-FROM mcr.microsoft.com/playwright/python:v1.47.0
+FROM mcr.microsoft.com/playwright/python:v1.52.0-noble
 
 # 2) Set your working dir
 WORKDIR /app

@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import uuid4
 from typing import Optional, List, Dict, Any
 from sqlalchemy import Column, JSON
+from schemas.project import AnalysisInsight
 
 class User(SQLModel, table=True):
     id: str = Field(default_factory=lambda: uuid4().hex, primary_key=True)
@@ -22,9 +23,13 @@ class Project(SQLModel, table=True):
     name: Optional[str]
     website: str
     git_url: Optional[str] = None
-    analysis: Optional[List[Dict[str, Any]]] = Field(
-        default=None,
-        sa_column=Column(JSON, nullable=True),
+    analysis: List[AnalysisInsight] = Field(
+        sa_column=Column(
+            JSON, 
+            nullable=False,
+            server_default="[]"
+        ),
+        default_factory=list,
     )
 
     status: str = Field(default="pending")

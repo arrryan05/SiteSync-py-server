@@ -20,7 +20,7 @@ services:
   worker:
     build: .
     container_name: fastapi_worker
-    command: rq worker analysis
+    command: rq worker --with-scheduler analysis
     env_file:
       - .env
     depends_on:

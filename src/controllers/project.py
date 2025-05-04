@@ -1,6 +1,8 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
 
 from schemas.project import CreateProjectRequest, ProjectResponse
 from services.project import (
@@ -9,10 +11,10 @@ from services.project import (
     get_project_details_service,
     delete_project_service,
 )
+from db.models import Project as ProjectModel
 from task import process_project_analysis
 from utils.jwt_bearer import get_current_user
 from db.database import get_session
-from services.route_extractor import extract_all_routes
 from redis import Redis
 from rq import Queue,Retry
 import os
@@ -38,14 +40,11 @@ async def create_project(
     # 1️⃣ create the DB record
     project = await create_project_service(payload, user_data["userId"], session)
     
-    # enqueue background job, pass git_url if provided
     analysis_q.enqueue(
         process_project_analysis,
-        project.id,
-        project.website,
-        payload.gitUrl,
-        job_timeout="600s",    # adjust
-        retry=Retry(max=3, interval=[5, 10, 20])
+        args=(project.id, project.website, payload.gitUrl),
+        retry=Retry(max=3, interval=[5,10,20]),
+        job_timeout="600s",
     )
 
     # # 2️⃣ immediately fire off your route extractor
@@ -92,3 +91,36 @@ async def delete_project(
         raise HTTPException(status_code=404, detail="Project not found")
     except PermissionError:
         raise HTTPException(status_code=403, detail="Not authorized")
+
+
+
+@router.post("/rerun")
+async def rerun_analysis(
+    projectId: str = Query(..., description="ID of the project to re-run analysis"),
+    session: AsyncSession = Depends(get_session),
+    user_data: dict = Depends(get_current_user),
+):
+    # 1️⃣ Verify project exists and belongs to this user
+    stmt = select(ProjectModel).where(
+        ProjectModel.id == projectId,
+        ProjectModel.user_id == user_data["userId"],
+    )
+    result = await session.execute(stmt)
+    proj: ProjectModel | None = result.scalar_one_or_none()
+    if not proj:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # 2️⃣ Mark it pending again
+    proj.status = "pending"
+    session.add(proj)
+    await session.commit()
+
+    # 3️⃣ Enqueue the background job
+    analysis_q.enqueue(
+        process_project_analysis,
+        args=(proj.id, proj.website, proj.git_url),
+        retry=Retry(max=3, interval=[5, 10, 20]),
+        job_timeout="600s",
+    )
+
+    return {"message": "Re-run analysis initiated"}
