@@ -7,7 +7,6 @@ from controllers.project import router as project_router
 
 app = FastAPI()
 
-# CORS setup — allow your frontend origin(s)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # <-- React/Next dev server

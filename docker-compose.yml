@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 
 services:
 
@@ -20,7 +20,7 @@ services:
   worker:
     build: .
     container_name: fastapi_worker
-    command: rq worker --with-scheduler analysis
+    command: rq worker --with-scheduler analysis --path /app/src
     env_file:
       - .env
     depends_on:
@@ -43,6 +43,19 @@ services:
     restart: always
     ports:
       - "6379:6379"
+  
+  chroma:
+    image: chromadb/chroma
+    container_name: chroma_db
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+    ports:
+      - "8000:8000"
 
 volumes:
   db-data:
+  chroma_data:

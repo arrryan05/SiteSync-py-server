@@ -1,43 +1,11 @@
-# # Use a slim Python base
-# FROM python:3.10-slim
-
-# # 1) Create & switch to /app
-# WORKDIR /app
-
-# ENV PYTHONPATH=/app/src
-
-# # 2) Install build deps (git for cloning later, etc.)
-# RUN apt-get update \
-#   && apt-get install -y --no-install-recommends git build-essential \
-#   && rm -rf /var/lib/apt/lists/*
-
-# # 3) Copy & install Python deps
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
-
-
-# RUN python -m playwright install --with-deps
-
-
-# # 4) Copy your source code
-# COPY . .
-
-# # 5) Expose FastAPI port
-# EXPOSE 8080
-
-# # 6) Default command: start Uvicorn
-# CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
-
-
-
 # ┌────────────────────────────────────────────────────────────┐
 # │ Dockerfile                                                 │
 # └────────────────────────────────────────────────────────────┘
 
-# 1) Base on the Playwright Python image (Ubuntu 24.04 “Noble” + Python + browsers)
+# 1) Base image: Playwright Python (Ubuntu 24.04 “Noble” + Python + browsers)
 FROM mcr.microsoft.com/playwright/python:v1.52.0-noble
 
-# 2) Set your working dir
+# 2) Set working directory
 WORKDIR /app
 
 # 3) Ensure our app path is on PYTHONPATH
@@ -47,9 +15,18 @@ ENV PYTHONPATH=/app/src
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5) Copy all source
+# 5) PRE‑DOWNLOAD the all‑MiniLM‑L6‑v2 ONNX model into the build cache
+#    (removes network timeout issues at runtime)
+RUN python - <<EOF
+from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
+# This will download the model into /root/.cache/chroma/onnx_models
+ONNXMiniLM_L6_V2()._download_model_if_not_exists()
+print("✅ ONNX MiniLM L6 V2 model pre‑downloaded.")
+EOF
+
+# 6) Copy application source
 COPY . .
 
-# 6) Expose port and launch
+# 7) Expose port and launch
 EXPOSE 8080
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]

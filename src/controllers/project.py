@@ -12,7 +12,7 @@ from services.project import (
     delete_project_service,
 )
 from db.models import Project as ProjectModel
-from task import process_project_analysis
+from task.process import process_project_analysis 
 from utils.jwt_bearer import get_current_user
 from db.database import get_session
 from redis import Redis
@@ -42,7 +42,7 @@ async def create_project(
     
     analysis_q.enqueue(
         process_project_analysis,
-        args=(project.id, project.website, payload.gitUrl),
+        args=(project.id,project.name, project.website, payload.gitUrl),
         retry=Retry(max=3, interval=[5,10,20]),
         job_timeout="600s",
     )
@@ -118,7 +118,7 @@ async def rerun_analysis(
     # 3️⃣ Enqueue the background job
     analysis_q.enqueue(
         process_project_analysis,
-        args=(proj.id, proj.website, proj.git_url),
+        args=(proj.id, proj.name, proj.website, proj.git_url),
         retry=Retry(max=3, interval=[5, 10, 20]),
         job_timeout="600s",
     )
