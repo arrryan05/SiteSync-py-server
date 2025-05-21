@@ -13,9 +13,18 @@ class PerformanceMetrics(BaseModel):
     CLS: MetricDetail
     TBT: MetricDetail
 
+class CodeChange(BaseModel):
+    file: str
+    startLine: int
+    endLine: int
+    oldCode: str
+    newCode: str
+    explanation: str
+
 class AnalysisInsight(BaseModel):
     route: str
     performanceData: List[PerformanceMetrics]
+    codeChanges: dict[str, List[CodeChange]] = {}
 
 class CreateProjectRequest(BaseModel):
     website: str
