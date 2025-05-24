@@ -11,11 +11,11 @@ def orchestrator(repo_url: str, collection_name: str):
     repo_path = clone_repo(repo_url)
     try:
         files  = extract_relevant_files(repo_path)
-        logger.info(f"🔍 Found {len(files)} files")
+        print("🔍 Found {len(files)} files")
         chunks = chunk_code(files)
-        logger.info(f"✂️  Split into {len(chunks)} code chunks")
+        print(f"✂️  Split into {len(chunks)} code chunks")
 
         store_chunks(chunks, collection_name)
     finally:
         shutil.rmtree(repo_path, ignore_errors=True)
-        logger.info("🧹 Removed temp repo")
+        print("🧹 Removed temp repo")
