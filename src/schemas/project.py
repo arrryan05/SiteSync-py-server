@@ -38,5 +38,5 @@ class ProjectResponse(BaseModel):
     gitUrl: Optional[str] = None
     analysisSummary: List[AnalysisInsight]
     status: str
-    createdAt: datetime
+    createdAt: datetime 
     updatedAt: datetime
